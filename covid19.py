@@ -1,4 +1,4 @@
-import requests
+import requests, json
 
 response = requests.get('https://api.kawalcorona.com/indonesia/provinsi/')
 list = response.json()
@@ -89,5 +89,55 @@ else:
 
    ## end message vars ##
 
-   ## send to telegram ##
-   requests.get('https://api.telegram.org/bot1264034596:AAEzvf_ShnwYYkENitzGllz-ZzMmWfWRg80/sendMessage?chat_id=-231890212&parse_mode=HTML&disable_web_page_preview=false&text='+telegram_notif)
+   group_id = []
+   remove_id = []
+
+   ## get active group ID ##
+   response = requests.get('https://api.telegram.org/bot1264034596:AAEzvf_ShnwYYkENitzGllz-ZzMmWfWRg80/getUpdates')
+   list = response.json()
+
+   for group in list['result']:
+      id = group['message']['chat']['id']
+      group_id.append(id)
+
+   uniq = set(group_id)
+   d_val = []
+   for x in uniq:
+      d_val.append(x)
+
+   try:
+      f = open("/project/corona_api/tmp/group","r")
+      exists_array = json.loads(f.read())
+      merge = exists_array+d_val
+
+      uniq = set(merge)
+      d_val = []
+      for x in uniq:
+         d_val.append(x)
+      f = open("/project/corona_api/tmp/group","w")
+      f.write(str(d_val))
+      f.close()
+   except IOError:
+      f = open("/project/corona_api/tmp/group","w")
+      f.write(str(d_val))
+      f.close()
+
+   f = open("/project/corona_api/tmp/group","r")
+   json_group = json.loads(f.read())
+   print json_group
+
+   ## send to active group ##
+   for g_id in json_group:
+      response = requests.get('https://api.telegram.org/bot1264034596:AAEzvf_ShnwYYkENitzGllz-ZzMmWfWRg80/sendMessage?chat_id='+str(g_id)+'&parse_mode=HTML&disable_web_page_preview=false&text='+telegram_notif)
+      if response.status_code == 200:
+         print "berhasil "+str(g_id)
+      elif response.status_code == 403 or response.status_code == 400:
+         print "error "+str(g_id)
+         remove_id.append(g_id)
+
+   for trim in remove_id:
+      json_group.remove(trim)
+
+   f = open("/project/corona_api/tmp/group","w")
+   f.write(str(json_group))
+   f.close()
