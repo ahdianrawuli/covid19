@@ -16,17 +16,17 @@ for data in list:
    ## put togather as array##
    data_array = str(provinsi)+","+str(kasus_posi)+","+str(kasus_semb)+","+str(kasus_meni)
    try:
-      f = open("/project/corona_api/tmp/"+str(kode_provi),"r")
+      f = open("/tmp/"+str(kode_provi),"r")
       f.close()
       print(str(kode_provi)+" exists")
    except IOError:
-      f = open("/project/corona_api/tmp/"+str(kode_provi),"w")
+      f = open("/tmp/"+str(kode_provi),"w")
       f.write(data_array)
       f.close()
       print(str(kode_provi)+" created")
 
    ## read from array file ##
-   f = open("/project/corona_api/tmp/"+str(kode_provi),"r")
+   f = open("/tmp/"+str(kode_provi),"r")
    f_array = f.read().split(",")
    f_posi = f_array[1]
    f_semb = f_array[2]
@@ -53,7 +53,7 @@ for data in list:
       final_d.append(data_file)
 
       ## update data ##
-      f = open("/project/corona_api/tmp/"+str(kode_provi),"w")
+      f = open("/tmp/"+str(kode_provi),"w")
       f.write(data_array)
       f.close()
       print(str(kode_provi)+" update")
@@ -97,21 +97,21 @@ else:
    for x in uniq:
       d_val.append(x)
    try:
-      f = open("/project/corona_api/tmp/group","r")
+      f = open("/tmp/group","r")
       exists_array = json.loads(f.read())
       merge = exists_array+d_val
       uniq = set(merge)
       d_val = []
       for x in uniq:
          d_val.append(x)
-      f = open("/project/corona_api/tmp/group","w")
+      f = open("/tmp/group","w")
       f.write(str(d_val))
       f.close()
    except IOError:
-      f = open("/project/corona_api/tmp/group","w")
+      f = open("/tmp/group","w")
       f.write(str(d_val))
       f.close()
-   f = open("/project/corona_api/tmp/group","r")
+   f = open("/tmp/group","r")
    json_group = json.loads(f.read())
    print json_group
 
@@ -125,6 +125,6 @@ else:
          remove_id.append(g_id)
    for trim in remove_id:
       json_group.remove(trim)
-   f = open("/project/corona_api/tmp/group","w")
+   f = open("/tmp/group","w")
    f.write(str(json_group))
    f.close()
